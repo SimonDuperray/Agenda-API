@@ -20,4 +20,4 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 
-Route.get('/', 'AgendaController.index');
+Route.get('/agenda/:id', 'AgendaController.index').as('agenda');
