@@ -3,7 +3,7 @@
 export default class AgendaController {
    async index () {
       return {
-         'key': 'value'
+         'hello': 'world'
       }
    }
 }
