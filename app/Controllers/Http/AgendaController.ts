@@ -37,8 +37,13 @@ export default class AgendaController {
       const day: number = date.getDay();
       const isWeekend: boolean = day === 0 || day === 6 ? true : false;
       const fullDate: string = date.getDate()+"/"+(date.getMonth() + 1).toString()+"/"+date.getFullYear();
-      if(day==0 || day==6) {
+      var week: Object = {};
 
+      // get week range
+      if(isWeekend) {
+         week = await this.getNextWeek(date)
+      } else {
+         week = await this.getCurrentWeek(date)
       }
 
       // send request
@@ -49,13 +54,37 @@ export default class AgendaController {
       return {
          "res": agenda,
          "date": fullDate,
-         "isWeekend": isWeekend
+         "isWeekend": isWeekend,
+         "currentWeek": await this.getCurrentWeek(date),
+         "nextWeek": await this.getNextWeek(date),
       }
    }
 
-   async get_students () {
+   async getStudents () {
       return {
          "students": this.students
       }
    }
+
+   private async getNextWeek(d: Date) {
+      const nextMonday: Date = new Date();
+      nextMonday.setDate(d.getDate()+(((1+7-d.getDay())%7) || 7));
+
+      const nextFriday = new Date(d.setDate(nextMonday.getDate() - nextMonday.getDay() + 5));
+
+      return {
+         'monday': nextMonday,
+         'friday': nextFriday
+      }
+   }
+
+   private async getCurrentWeek(d: Date) {
+      const monday: Date = new Date(d.setDate(d.getDate()-d.getDay()+1));
+      const friday: Date = new Date(d.setDate(d.getDate()-d.getDay()+5));
+      return {
+         'monday': monday,
+         'friday': friday
+      }
+   }
+
 }
