@@ -9,33 +9,33 @@ export default class WeeklyAgendum extends BaseModel {
 
   @column({
     prepare: (value: Object) => JSON.stringify(value),
-    // consume: (value: string) => JSON.parse(value),
+    consume: (value: string) => JSON.parse(value),
   })
-  public agenda_obj: string;
+  public agenda_obj: Object;
 
   @column({
     prepare: (value: Object) => JSON.stringify(value),
-    // consume: (value: string) => JSON.parse(value),
+    consume: (value: string) => JSON.parse(value),
   })
-  public steps_repartition: string;
+  public steps_repartition: Object;
 
   @column({
     prepare: (value: Object) => JSON.stringify(value),
-    // consume: (value: string) => JSON.parse(value),
+    consume: (value: string) => JSON.parse(value),
   })
-  public nb_hour_per_lesson: string;
+  public nb_hour_per_lesson: Object;
 
   @column({
     prepare: (value: Object) => JSON.stringify(value),
-    // consume: (value: string) => JSON.parse(value),
+    consume: (value: string) => JSON.parse(value),
   })
-  public teachers_repartition: string;
+  public teachers_repartition: Object;
 
   @column({
     prepare: (value: Object) => JSON.stringify(value),
-    // consume: (value: string) => JSON.parse(value),
+    consume: (value: string) => JSON.parse(value),
   })
-  public lessons_types_repartition: string;
+  public lessons_types_repartition: Object;
 
   @column()
   public nb_hours: number;
@@ -45,7 +45,7 @@ export default class WeeklyAgendum extends BaseModel {
 
   @column({
     prepare: (value: Object) => JSON.stringify(value),
-    // consume: (value: string) => JSON.parse(value),
+    consume: (value: string) => JSON.parse(value),
   })
-  public buildings_repartition: string;
+  public buildings_repartition: Object;
 }

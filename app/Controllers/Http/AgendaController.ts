@@ -1,7 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import StudentInterface from 'App/Models/StudentInterface';
 import axios from 'axios'
-import WeeklyAgendum from 'App/Models/WeeklyAgendum';
+import Agenda from 'App/Models/Agenda';
 
 export default class AgendaController {
 
@@ -34,8 +34,8 @@ export default class AgendaController {
    // CONTROLLER METHODS
 
    async index ({ params }: HttpContextContract) {
-      const weeklyAgendum = await WeeklyAgendum.findByOrFail('student_id', params.id);
-      const ag: string = weeklyAgendum['agenda_obj'].replace('\\', '');
+      const weeklyAgendum = await Agenda.findByOrFail('student_id', params.id);
+      const ag: Object = weeklyAgendum['agenda_obj']
       return {
          "ag": ag
       }
@@ -207,7 +207,7 @@ export default class AgendaController {
       const exams: number = await this.getExamCode(data['res']);
       const buildingRepartition: Object = await this.getBuildingRepartition(data['res']);
 
-      const agenda = new WeeklyAgendum();
+      const agenda = new Agenda();
       // const toStore: Object = {
       //    "student_id": std_id,
       //    "agenda_obj": JSON.stringify(agendaObj),
