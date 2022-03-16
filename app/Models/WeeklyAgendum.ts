@@ -7,19 +7,34 @@ export default class WeeklyAgendum extends BaseModel {
   @column()
   public student_id: number;
 
-  @column()
+  @column({
+    prepare: (value: Object) => JSON.stringify(value),
+    // consume: (value: string) => JSON.parse(value),
+  })
   public agenda_obj: string;
 
-  @column()
+  @column({
+    prepare: (value: Object) => JSON.stringify(value),
+    // consume: (value: string) => JSON.parse(value),
+  })
   public steps_repartition: string;
 
-  @column()
+  @column({
+    prepare: (value: Object) => JSON.stringify(value),
+    // consume: (value: string) => JSON.parse(value),
+  })
   public nb_hour_per_lesson: string;
 
-  @column()
+  @column({
+    prepare: (value: Object) => JSON.stringify(value),
+    // consume: (value: string) => JSON.parse(value),
+  })
   public teachers_repartition: string;
 
-  @column()
+  @column({
+    prepare: (value: Object) => JSON.stringify(value),
+    // consume: (value: string) => JSON.parse(value),
+  })
   public lessons_types_repartition: string;
 
   @column()
@@ -28,6 +43,9 @@ export default class WeeklyAgendum extends BaseModel {
   @column()
   public nb_exams: number;
 
-  @column()
+  @column({
+    prepare: (value: Object) => JSON.stringify(value),
+    // consume: (value: string) => JSON.parse(value),
+  })
   public buildings_repartition: string;
 }

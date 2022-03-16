@@ -29,15 +29,15 @@ export default class AgendaController {
          fname: "Léopold",
          lname: "Denis"
       }
-
    ];
 
    // CONTROLLER METHODS
 
    async index ({ params }: HttpContextContract) {
       const weeklyAgendum = await WeeklyAgendum.findByOrFail('student_id', params.id);
+      const ag: string = weeklyAgendum['agenda_obj'].replace('\\', '');
       return {
-         'weeklyAgendum': weeklyAgendum
+         "ag": ag
       }
    }
 
@@ -199,25 +199,36 @@ export default class AgendaController {
       
       const data: Object = await this.getWeeklyAgenda(std_id, date);
       const agendaObj: Object = data['res'];
-      const stepsRepartition = await this.getStepsRepartition(data['res']);
-      const nbHourPerLesson = await this.getNbHourPerLesson(data['res']);
-      const teachersRepartition = await this.getTeachersRepartition(data['res']);
-      const lessonsTypeRepartition = await this.getLessonsTypeRepartition(data['res']);
+      const stepsRepartition: Object = await this.getStepsRepartition(data['res']);
+      const nbHourPerLesson: Object = await this.getNbHourPerLesson(data['res']);
+      const teachersRepartition: Object = await this.getTeachersRepartition(data['res']);
+      const lessonsTypeRepartition: Object = await this.getLessonsTypeRepartition(data['res']);
       const totalHours: number = Object.values(lessonsTypeRepartition).reduce((a,b) => a+b, 0);
       const exams: number = await this.getExamCode(data['res']);
       const buildingRepartition: Object = await this.getBuildingRepartition(data['res']);
 
       const agenda = new WeeklyAgendum();
+      // const toStore: Object = {
+      //    "student_id": std_id,
+      //    "agenda_obj": JSON.stringify(agendaObj),
+      //    "steps_repartition": JSON.stringify(stepsRepartition),
+      //    "nb_hour_per_lesson": JSON.stringify(nbHourPerLesson),
+      //    "teachers_repartition": JSON.stringify(teachersRepartition),
+      //    "lessons_types_repartition": JSON.stringify(lessonsTypeRepartition),
+      //    "nb_hours": totalHours,
+      //    "nb_exams": exams,
+      //    "buildings_repartition": JSON.stringify(buildingRepartition),
+      // }
       const toStore: Object = {
          "student_id": std_id,
-         "agenda_obj": JSON.stringify(agendaObj),
-         "steps_repartition": JSON.stringify(stepsRepartition),
-         "nb_hour_per_lesson": JSON.stringify(nbHourPerLesson),
-         "teachers_repartition": JSON.stringify(teachersRepartition),
-         "lessons_types_repartition": JSON.stringify(lessonsTypeRepartition),
+         "agenda_obj": agendaObj,
+         "steps_repartition": stepsRepartition,
+         "nb_hour_per_lesson": nbHourPerLesson,
+         "teachers_repartition": teachersRepartition,
+         "lessons_types_repartition": lessonsTypeRepartition,
          "nb_hours": totalHours,
          "nb_exams": exams,
-         "buildings_repartition": JSON.stringify(buildingRepartition),
+         "buildings_repartition": buildingRepartition,
       }
       await agenda.fill(toStore).save();
    }
