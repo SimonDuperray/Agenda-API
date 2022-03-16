@@ -151,10 +151,12 @@ export default class AgendaController {
          // get course duration
          const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
          // insert duration in lessons object
-         if(!Object.keys(teachers).includes(teacher)) {
-            teachers[teacher] = lessonDuration;
-         } else {
-            teachers[teacher] += lessonDuration
+         if(agenda['Code']!='EXA') {
+            if(!Object.keys(teachers).includes(teacher)) {
+               teachers[teacher] = lessonDuration;
+            } else {
+               teachers[teacher] += lessonDuration
+            }
          }
       });
       return teachers;
