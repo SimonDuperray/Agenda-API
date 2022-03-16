@@ -2,6 +2,8 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import StudentInterface from 'App/Models/StudentInterface';
 import axios from 'axios'
 import Agenda from 'App/Models/Agenda';
+import Database from '@ioc:Adonis/Lucid/Database';
+import Env from '@ioc:Adonis/Core/Env'
 
 export default class AgendaController {
 
@@ -34,11 +36,8 @@ export default class AgendaController {
    // CONTROLLER METHODS
 
    async index ({ params }: HttpContextContract) {
-      const weeklyAgendum = await Agenda.findByOrFail('student_id', params.id);
-      const ag: Object = weeklyAgendum['agenda_obj']
-      return {
-         "ag": ag
-      }
+      const weeklyAgendum: Object = await Agenda.findByOrFail('student_id', params.id);
+      return weeklyAgendum;
    }
 
    async getStudents () {
@@ -48,9 +47,15 @@ export default class AgendaController {
    }
 
    async storeAll () {
-      this.students.forEach(student => {
+      await Database
+         .from('weekly_agenda')
+         .delete()
+      await this.students.forEach(student => {
          this.store(student.student_id);
       });
+      return {
+         "success": "ok"
+      }
    }
 
    // PRIVATE METHODS
@@ -118,7 +123,7 @@ export default class AgendaController {
 
    private async getBuildingRepartition ( agendas: Array<Object> ) {
       // TODO: get building repartition
-      const buildings: Object = {'A': 0, 'B': 0, 'C': 0};
+      const buildings: Object = {'A': 0, 'B': 0, 'C': 0, 'D': 0};
       agendas.forEach(agenda => {
          const place: string = agenda['Emplacement'];
          if(place.includes('-')) {
@@ -208,17 +213,7 @@ export default class AgendaController {
       const buildingRepartition: Object = await this.getBuildingRepartition(data['res']);
 
       const agenda = new Agenda();
-      // const toStore: Object = {
-      //    "student_id": std_id,
-      //    "agenda_obj": JSON.stringify(agendaObj),
-      //    "steps_repartition": JSON.stringify(stepsRepartition),
-      //    "nb_hour_per_lesson": JSON.stringify(nbHourPerLesson),
-      //    "teachers_repartition": JSON.stringify(teachersRepartition),
-      //    "lessons_types_repartition": JSON.stringify(lessonsTypeRepartition),
-      //    "nb_hours": totalHours,
-      //    "nb_exams": exams,
-      //    "buildings_repartition": JSON.stringify(buildingRepartition),
-      // }
+
       const toStore: Object = {
          "student_id": std_id,
          "agenda_obj": agendaObj,
@@ -230,6 +225,7 @@ export default class AgendaController {
          "nb_exams": exams,
          "buildings_repartition": buildingRepartition,
       }
-      await agenda.fill(toStore).save();
+
+      await agenda.merge(toStore).save();
    }
 }
