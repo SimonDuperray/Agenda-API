@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import StudentInterface from 'App/Models/StudentInterface';
 import axios from 'axios'
+import WeeklyAgendum from 'App/Models/WeeklyAgendum';
 
 export default class AgendaController {
 
@@ -34,28 +35,9 @@ export default class AgendaController {
    // CONTROLLER METHODS
 
    async index ({ params }: HttpContextContract) {
-      const id = params.id;
-      const date: Date = new Date();
-      
-      const data: Object = await this.getWeeklyAgenda(id, date);
-      const stepsRepartition = await this.getStepsRepartition(data['res']);
-      const nbHourPerLesson = await this.getNbHourPerLesson(data['res']);
-      const teachersRepartition = await this.getTeachersRepartition(data['res']);
-      const lessonsTypeRepartition = await this.getLessonsTypeRepartition(data['res']);
-      const totalHours: number = Object.values(lessonsTypeRepartition).reduce((a,b) => a+b, 0);
-      const exams: number = await this.getExamCode(data['res']);
-      const buildingRepartition: Object = await this.getBuildingRepartition(data['res']);
-
+      const weeklyAgendum = await WeeklyAgendum.findByOrFail('student_id', params.id);
       return {
-         "student_id": id,
-         "agenda_obj": data['res'],
-         "steps_repartition": stepsRepartition,
-         "nbHourPerLesson": nbHourPerLesson,
-         "teachers_repartition": teachersRepartition,
-         "lessonsTypeRepartition": lessonsTypeRepartition,
-         "totalHours": totalHours,
-         "exams": exams,
-         "buildingRepartition": buildingRepartition,
+         'weeklyAgendum': weeklyAgendum
       }
    }
 
@@ -63,6 +45,12 @@ export default class AgendaController {
       return {
          "students": this.students
       }
+   }
+
+   async storeAll () {
+      this.students.forEach(student => {
+         this.store(student.student_id);
+      });
    }
 
    // PRIVATE METHODS
@@ -204,5 +192,33 @@ export default class AgendaController {
          }
       });
       return exams;
+   }
+
+   private async store ( std_id: number ) {
+      const date: Date = new Date();
+      
+      const data: Object = await this.getWeeklyAgenda(std_id, date);
+      const agendaObj: Object = data['res'];
+      const stepsRepartition = await this.getStepsRepartition(data['res']);
+      const nbHourPerLesson = await this.getNbHourPerLesson(data['res']);
+      const teachersRepartition = await this.getTeachersRepartition(data['res']);
+      const lessonsTypeRepartition = await this.getLessonsTypeRepartition(data['res']);
+      const totalHours: number = Object.values(lessonsTypeRepartition).reduce((a,b) => a+b, 0);
+      const exams: number = await this.getExamCode(data['res']);
+      const buildingRepartition: Object = await this.getBuildingRepartition(data['res']);
+
+      const agenda = new WeeklyAgendum();
+      const toStore: Object = {
+         "student_id": std_id,
+         "agenda_obj": JSON.stringify(agendaObj),
+         "steps_repartition": JSON.stringify(stepsRepartition),
+         "nb_hour_per_lesson": JSON.stringify(nbHourPerLesson),
+         "teachers_repartition": JSON.stringify(teachersRepartition),
+         "lessons_types_repartition": JSON.stringify(lessonsTypeRepartition),
+         "nb_hours": totalHours,
+         "nb_exams": exams,
+         "buildings_repartition": JSON.stringify(buildingRepartition),
+      }
+      await agenda.fill(toStore).save();
    }
 }

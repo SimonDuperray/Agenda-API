@@ -8,20 +8,26 @@ export default class WeeklyAgendum extends BaseModel {
   public student_id: number;
 
   @column()
-  public agenda_obj: Object;
+  public agenda_obj: string;
 
   @column()
-  public steps_repartition: Object;
+  public steps_repartition: string;
 
   @column()
-  public nb_hour_per_lesson: Object;
+  public nb_hour_per_lesson: string;
 
   @column()
-  public teachers_repartition: Object;
+  public teachers_repartition: string;
+
+  @column()
+  public lessons_types_repartition: string;
 
   @column()
   public nb_hours: number;
 
   @column()
   public nb_exams: number;
+
+  @column()
+  public buildings_repartition: string;
 }
