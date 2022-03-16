@@ -4,6 +4,8 @@ import axios from 'axios'
 
 export default class AgendaController {
 
+   // PRIVATE ATTRIBUTES
+
    private students: Array<StudentInterface> = [
       {
          student_id: 41857,
@@ -29,13 +31,22 @@ export default class AgendaController {
 
    ];
 
+   // CONTROLLER METHODS
+
    async index ({ params }: HttpContextContract) {
       const id = params.id;
       const date: Date = new Date();
       
-      const data: Object = await this.getWeeklyAgenda(id, date)
+      const data: Object = await this.getWeeklyAgenda(id, date);
+      const stepsRepartition = await this.getStepsRepartition(data['res']);
+      const nbHourPerLesson = await this.getNbHourPerLesson(data['res']);
 
-      return data
+      return {
+         "student_id": id,
+         "agenda_obj": data['res'],
+         "steps_repartition": stepsRepartition,
+         "nbHourPerLesson": nbHourPerLesson
+      }
    }
 
    async getStudents () {
@@ -43,6 +54,8 @@ export default class AgendaController {
          "students": this.students
       }
    }
+
+   // PRIVATE METHODS
 
    private async getWeeklyAgenda ( id: number, d: Date ) {
       const day: number = d.getDay();
@@ -92,4 +105,33 @@ export default class AgendaController {
       }
    }
 
+   private async getStepsRepartition ( agendas: Array<Object> ) {
+      // TODO: get building repartition
+      const steps: Object = {'0': 0, '1': 0, '2': 0, '3': 0, '4': 0};
+      agendas.forEach(agenda => {
+         const place: string = agenda['Emplacement'];
+         if(place.includes('-')) {
+            const stage: string = place.substring(1,2)
+            steps[stage]+=1
+         }
+      });
+      return steps;
+   }
+
+   private async getNbHourPerLesson ( agendas: Array<Object> ) {
+      const lessons: Object = {};
+      agendas.forEach(agenda => {
+         // get libelle
+         const libelle: string = agenda['Libelle'];
+         // get course duration
+         const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
+         // insert duration in lessons object
+         if(!Object.keys(lessons).includes(libelle)) {
+            lessons[libelle] = lessonDuration;
+         } else {
+            lessons[libelle] += lessonDuration
+         }
+      });
+      return lessons;
+   }
 }
