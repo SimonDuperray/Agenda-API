@@ -40,12 +40,20 @@ export default class AgendaController {
       const data: Object = await this.getWeeklyAgenda(id, date);
       const stepsRepartition = await this.getStepsRepartition(data['res']);
       const nbHourPerLesson = await this.getNbHourPerLesson(data['res']);
+      const teachersRepartition = await this.getTeachersRepartition(data['res']);
+      const lessonsTypeRepartition = await this.getLessonsTypeRepartition(data['res']);
+      const totalHours: number = Object.values(lessonsTypeRepartition).reduce((a,b) => a+b, 0);
+      const exams: number = await this.getExamCode(data['res']);
 
       return {
          "student_id": id,
          "agenda_obj": data['res'],
          "steps_repartition": stepsRepartition,
-         "nbHourPerLesson": nbHourPerLesson
+         "nbHourPerLesson": nbHourPerLesson,
+         "teachers_repartition": teachersRepartition,
+         "lessonsTypeRepartition": lessonsTypeRepartition,
+         "totalHours": totalHours,
+         "exams": exams
       }
    }
 
@@ -133,5 +141,51 @@ export default class AgendaController {
          }
       });
       return lessons;
+   }
+
+   private async getTeachersRepartition ( agendas: Array<Object> ) {
+      const teachers: Object = {};
+      agendas.forEach(agenda => {
+         // get teacher
+         const teacher: string = agenda['Professeur'];
+         // get course duration
+         const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
+         // insert duration in lessons object
+         if(!Object.keys(teachers).includes(teacher)) {
+            teachers[teacher] = lessonDuration;
+         } else {
+            teachers[teacher] += lessonDuration
+         }
+      });
+      return teachers;
+   }
+
+   private async getLessonsTypeRepartition ( agendas: Array<Object>) {
+      const lessonsTypes: Object = {};
+      agendas.forEach(agenda => {
+         // get teacher
+         const code: string = agenda['Code'];
+         // get course duration
+         const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
+         // insert duration in lessons object
+         if(!Object.keys(lessonsTypes).includes(code)) {
+            lessonsTypes[code] = lessonDuration;
+         } else {
+            lessonsTypes[code] += lessonDuration
+         }
+      });
+      return lessonsTypes;
+   }
+
+   private async getExamCode ( agendas: Array<Object> ) {
+      var exams: number = 0;
+      agendas.forEach(agenda => {
+         // get teacher
+         const code: string = agenda['Code'];
+         if(code.includes('EXA')) {
+            exams+=1;
+         }
+      });
+      return exams;
    }
 }
