@@ -140,7 +140,7 @@ export default class AgendaController {
          // get libelle
          const libelle: string = agenda['Libelle'];
          // get course duration
-         const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
+         const lessonDuration = Number(((new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5).toFixed(2));
          // insert duration in lessons object
          if(!Object.keys(lessons).includes(libelle)) {
             lessons[libelle] = lessonDuration;
@@ -157,7 +157,7 @@ export default class AgendaController {
          // get teacher
          const teacher: string = agenda['Professeur'];
          // get course duration
-         const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
+         const lessonDuration = Number(((new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5).toFixed(2));
          // insert duration in lessons object
          if(agenda['Code']!='EXA') {
             if(!Object.keys(teachers).includes(teacher)) {
@@ -176,7 +176,7 @@ export default class AgendaController {
          // get teacher
          const code: string = agenda['Code'];
          // get course duration
-         const lessonDuration = (new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5;
+         const lessonDuration = Number(((new Date(agenda['Fin']).getTime()-new Date(agenda['Debut']).getTime())/36e5).toFixed(2));
          // insert duration in lessons object
          if(!Object.keys(lessonsTypes).includes(code)) {
             lessonsTypes[code] = lessonDuration;
@@ -228,4 +228,5 @@ export default class AgendaController {
 
       await agenda.merge(toStore).save();
    }
+
 }
