@@ -44,6 +44,7 @@ export default class AgendaController {
       const lessonsTypeRepartition = await this.getLessonsTypeRepartition(data['res']);
       const totalHours: number = Object.values(lessonsTypeRepartition).reduce((a,b) => a+b, 0);
       const exams: number = await this.getExamCode(data['res']);
+      const buildingRepartition: Object = await this.getBuildingRepartition(data['res']);
 
       return {
          "student_id": id,
@@ -53,7 +54,8 @@ export default class AgendaController {
          "teachers_repartition": teachersRepartition,
          "lessonsTypeRepartition": lessonsTypeRepartition,
          "totalHours": totalHours,
-         "exams": exams
+         "exams": exams,
+         "buildingRepartition": buildingRepartition,
       }
    }
 
@@ -124,6 +126,19 @@ export default class AgendaController {
          }
       });
       return steps;
+   }
+
+   private async getBuildingRepartition ( agendas: Array<Object> ) {
+      // TODO: get building repartition
+      const buildings: Object = {'A': 0, 'B': 0, 'C': 0};
+      agendas.forEach(agenda => {
+         const place: string = agenda['Emplacement'];
+         if(place.includes('-')) {
+            const stage: string = place.substring(0,1)
+            buildings[stage]+=1
+         }
+      });
+      return buildings;
    }
 
    private async getNbHourPerLesson ( agendas: Array<Object> ) {
