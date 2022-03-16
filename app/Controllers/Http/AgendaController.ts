@@ -37,17 +37,18 @@ export default class AgendaController {
       const day: number = date.getDay();
       const isWeekend: boolean = day === 0 || day === 6 ? true : false;
       const fullDate: string = date.getDate()+"/"+(date.getMonth() + 1).toString()+"/"+date.getFullYear();
-      var week: Object = {};
 
       // get week range
-      if(isWeekend) {
-         week = await this.getNextWeek(date)
-      } else {
-         week = await this.getCurrentWeek(date)
-      }
+      const week: Object = isWeekend ? await this.getNextWeek(date) : await this.getCurrentWeek(date);
+
+      // format date to pass it in the request
+      const mondayMonth = week['monday'].getMonth()+1<10 ? "0"+(week['monday'].getMonth()+1).toString() : (week['monday'].getMonth()+1).toString();
+      const fridayMonth = week['friday'].getMonth()+1<10 ? "0"+(week['friday'].getMonth()+1).toString() : (week['friday'].getMonth()+1).toString();
+      const monday: string = week['monday'].getFullYear()+mondayMonth+week['monday'].getDate()
+      const friday: string = week['friday'].getFullYear()+fridayMonth+week['friday'].getDate()
 
       // send request
-      const url = "https://reverse-proxy.eseo.fr/API-SP/API/agenda/user/20220316T050000/20220316T210000/" + id;
+      const url = "https://reverse-proxy.eseo.fr/API-SP/API/agenda/user/"+monday+"T050000/"+friday+"T210000/"+id;
       const res = await axios.get(url);
       const agenda = res.data;
       
@@ -55,8 +56,9 @@ export default class AgendaController {
          "res": agenda,
          "date": fullDate,
          "isWeekend": isWeekend,
-         "currentWeek": await this.getCurrentWeek(date),
-         "nextWeek": await this.getNextWeek(date),
+         "week": week,
+         'monday': monday,
+         'friday': friday
       }
    }
 
