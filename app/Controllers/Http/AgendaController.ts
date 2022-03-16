@@ -31,15 +31,26 @@ export default class AgendaController {
 
    async index ({ params }: HttpContextContract) {
       const id = params.id;
-
-      // get current datetime
       const date: Date = new Date();
-      const day: number = date.getDay();
+      
+      const data: Object = await this.getWeeklyAgenda(id, date)
+
+      return data
+   }
+
+   async getStudents () {
+      return {
+         "students": this.students
+      }
+   }
+
+   private async getWeeklyAgenda ( id: number, d: Date ) {
+      const day: number = d.getDay();
       const isWeekend: boolean = day === 0 || day === 6 ? true : false;
-      const fullDate: string = date.getDate()+"/"+(date.getMonth() + 1).toString()+"/"+date.getFullYear();
+      const fullDate: string = d.getDate()+"/"+(d.getMonth() + 1).toString()+"/"+d.getFullYear();
 
       // get week range
-      const week: Object = isWeekend ? await this.getNextWeek(date) : await this.getCurrentWeek(date);
+      const week: Object = isWeekend ? await this.getNextWeek(d) : await this.getCurrentWeek(d);
 
       // format date to pass it in the request
       const mondayMonth = week['monday'].getMonth()+1<10 ? "0"+(week['monday'].getMonth()+1).toString() : (week['monday'].getMonth()+1).toString();
@@ -51,20 +62,12 @@ export default class AgendaController {
       const url = "https://reverse-proxy.eseo.fr/API-SP/API/agenda/user/"+monday+"T050000/"+friday+"T210000/"+id;
       const res = await axios.get(url);
       const agenda = res.data;
-      
+
       return {
          "res": agenda,
          "date": fullDate,
          "isWeekend": isWeekend,
          "week": week,
-         'monday': monday,
-         'friday': friday
-      }
-   }
-
-   async getStudents () {
-      return {
-         "students": this.students
       }
    }
 
