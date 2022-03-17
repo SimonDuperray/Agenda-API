@@ -3,7 +3,6 @@ import StudentInterface from 'App/Models/StudentInterface';
 import axios from 'axios'
 import Agenda from 'App/Models/Agenda';
 import Database from '@ioc:Adonis/Lucid/Database';
-import Env from '@ioc:Adonis/Core/Env'
 
 export default class AgendaController {
 
